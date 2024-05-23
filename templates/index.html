@@ -1,45 +1,17 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Class Binary Classification</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Classificazione Multi-Classe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center">Multi-Class Binary Classification</h1>
-        <div class="row">
-            <div class="col-md-6">
-                <h2>Generate Binary Datasets</h2>
-                <form action="/generate" method="post">
-                    <button type="submit" class="btn btn-primary btn-block">Generate Datasets</button>
-                </form>
-            </div>
-            <div class="col-md-6">
-                <h2>Train Binary Models</h2>
-                <form action="/train_binary" method="post">
-                    <button type="submit" class="btn btn-success btn-block">Train Binary Models</button>
-                </form>
-            </div>
-            <div class="col-md-6 mt-4">
-                <h2>Train Multi-Class Model</h2>
-                <form action="/train_multi_class" method="post">
-                    <button type="submit" class="btn btn-warning btn-block">Train Multi-Class Model</button>
-                </form>
-            </div>
-        </div>
-        <div class="mt-5">
-            <h2>Results</h2>
-            <div id="results">
-                <!-- Results will be displayed here -->
-            </div>
-        </div>
+    <div class="container">
+        <h1>Classificazione Multi-Classe</h1>
+        <form action="/results" method="post">
+            <button type="submit">Esegui Classificazione</button>
+        </form>
     </div>
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

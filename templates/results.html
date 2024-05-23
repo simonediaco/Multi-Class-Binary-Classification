@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risultati della Classificazione</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Risultati della Classificazione</h1>
+        <h2>Modelli Binari</h2>
+        <table>
+            <tr>
+                <th>Dataset</th>
+                <th>Precision</th>
+                <th>Recall</th>
+            </tr>
+            {% for i, result in enumerate(binary_results) %}
+            <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ result[0] }}</td>
+                <td>{{ result[1] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <h2>Modello Multi-Classe</h2>
+        <table>
+            <tr>
+                <th>Precision</th>
+                <th>Recall</th>
+            </tr>
+            <tr>
+                <td>{{ multi_class_results[0] }}</td>
+                <td>{{ multi_class_results[1] }}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

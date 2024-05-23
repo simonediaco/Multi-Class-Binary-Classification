@@ -1,16 +1,42 @@
 from flask import Flask, render_template, request
-import os
-import logging
-from utils.data_processing import read_csv_files, create_binary_datasets
-from utils.arff_converter import save_as_arff
-from models.binary_classification import evaluate_model
-from models.multi_class_classification import evaluate_multi_class_model
 import pandas as pd
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+from sklearn.neural_network import MLPClassifier
 
 app = Flask(__name__)
 
-# Configura il logging
-logging.basicConfig(level=logging.DEBUG)
+
+def load_datasets():
+    csv_files = ['data/1.csv', 'data/2.csv', 'data/3.csv']
+    datasets = [pd.read_csv(file) for file in csv_files]
+    return datasets
+
+
+def create_binary_datasets(datasets):
+    binary_datasets = []
+    for i in range(len(datasets)):
+        positive_class = datasets[i].copy()
+        negative_classes = pd.concat([datasets[j] for j in range(len(datasets)) if j != i]).copy()
+        positive_class['class'] = 1
+        negative_classes['class'] = 0
+        binary_dataset = pd.concat([positive_class, negative_classes])
+        binary_datasets.append(binary_dataset)
+    return binary_datasets
+
+
+def evaluate_models(datasets):
+    results = []
+    for dataset in datasets:
+        X = dataset.drop(columns=['class'])
+        y = dataset['class']
+        model = MLPClassifier(max_iter=500)
+        skf = StratifiedKFold(n_splits=5)
+        precision_scores = cross_val_score(model, X, y, cv=skf, scoring='precision')
+        recall_scores = cross_val_score(model, X, y, cv=skf, scoring='recall')
+        precision = precision_scores.mean()
+        recall = recall_scores.mean()
+        results.append((precision, recall))
+    return results
 
 
 @app.route('/')
@@ -18,64 +44,23 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/generate', methods=['POST'])
-def generate_datasets():
-    try:
-        logging.info("Generating datasets")
-        file_paths = ['./data/1.csv', './data/2.csv', './data/3.csv']
-        dataframes = read_csv_files(file_paths)
-        binary_datasets = create_binary_datasets(dataframes)
+@app.route('/results', methods=['POST'])
+def results():
+    datasets = load_datasets()
+    binary_datasets = create_binary_datasets(datasets)
+    binary_results = evaluate_models(binary_datasets)
 
-        # Crea la cartella se non esiste
-        output_dir = './data/generated_arffs'
-        os.makedirs(output_dir, exist_ok=True)
+    multi_class_dataset = pd.concat(datasets)
+    X_multi = multi_class_dataset.drop(columns=['class'])
+    y_multi = multi_class_dataset['class']
+    multi_class_model = MLPClassifier(max_iter=500)
+    skf = StratifiedKFold(n_splits=5)
+    precision_multi = cross_val_score(multi_class_model, X_multi, y_multi, cv=skf, scoring='precision_weighted').mean()
+    recall_multi = cross_val_score(multi_class_model, X_multi, y_multi, cv=skf, scoring='recall_weighted').mean()
 
-        save_as_arff(binary_datasets, [f'{output_dir}/1.arff', f'{output_dir}/2.arff', f'{output_dir}/3.arff'])
-        logging.info("Datasets generated successfully")
-        return "Datasets generated successfully!"
-    except Exception as e:
-        logging.exception("Error generating datasets")
-        return str(e), 500
+    multi_class_results = (precision_multi, recall_multi)
 
-
-@app.route('/train_binary', methods=['POST'])
-def train_binary_models():
-    try:
-        logging.info("Starting binary model training...")
-        file_paths = ['./data/1.csv', './data/2.csv', './data/3.csv']
-        dataframes = read_csv_files(file_paths)
-        binary_datasets = create_binary_datasets(dataframes)
-        results = []
-        for i, dataset in enumerate(binary_datasets):
-            logging.debug(f"Training model {i + 1} with dataset")
-            X = dataset.iloc[:, :-1].values
-            y = dataset.iloc[:, -1].values
-            logging.debug(f"Shape of X: {X.shape}, Shape of y: {y.shape}")
-            precision, recall = evaluate_model(X, y)
-            results.append((precision, recall))
-        logging.info("Binary models evaluated successfully")
-        return f"Binary Models Evaluated: {results}"
-    except Exception as e:
-        logging.exception("Error training binary models")
-        return str(e), 500
-
-
-@app.route('/train_multi_class', methods=['POST'])
-def train_multi_class_model():
-    try:
-        logging.info("Starting multi-class model training...")
-        file_paths = ['./data/1.csv', './data/2.csv', './data/3.csv']
-        dataframes = read_csv_files(file_paths)
-        combined_df = pd.concat(dataframes)
-        X = combined_df.iloc[:, :-1].values
-        y = combined_df.iloc[:, -1].values
-        num_classes = len(set(y))
-        accuracy, precision, recall = evaluate_multi_class_model(X, y, num_classes)
-        logging.info("Multi-class model evaluated successfully")
-        return f"Multi-Class Model Evaluated: Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}"
-    except Exception as e:
-        logging.exception("Error training multi-class model")
-        return str(e), 500
+    return render_template('results.html', binary_results=binary_results, multi_class_results=multi_class_results)
 
 
 if __name__ == '__main__':
