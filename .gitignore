@@ -7,6 +7,6 @@ venv/*
 __pycache__
 __pycache__/*
 
-data/converted/*
-data/results/*
-data/uploads/*
+#data/converted/*
+#data/results/*
+#data/uploads/*
