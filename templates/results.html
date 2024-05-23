@@ -1,40 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risultati della Classificazione</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Risultati della Classificazione</h1>
-        <h2>Modelli Binari</h2>
-        <table>
-            <tr>
-                <th>Dataset</th>
-                <th>Precision</th>
-                <th>Recall</th>
-            </tr>
-            {% for i, result in enumerate(binary_results) %}
-            <tr>
-                <td>{{ i + 1 }}</td>
-                <td>{{ result[0] }}</td>
-                <td>{{ result[1] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        <h2>Modello Multi-Classe</h2>
-        <table>
-            <tr>
-                <th>Precision</th>
-                <th>Recall</th>
-            </tr>
-            <tr>
-                <td>{{ multi_class_results[0] }}</td>
-                <td>{{ multi_class_results[1] }}</td>
-            </tr>
-        </table>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Risultati della Classificazione{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Risultati della Classificazione</h1>
+<h2 class="mt-4">Modelli Binari</h2>
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Dataset</th>
+            <th>Precision</th>
+            <th>Recall</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in range(binary_results|length) %}
+        <tr>
+            <td>{{ i + 1 }}</td>
+            <td>{{ binary_results[i][0] }}</td>
+            <td>{{ binary_results[i][1] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<h2 class="mt-4">Modello Multi-Classe</h2>
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Precision</th>
+            <th>Recall</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ multi_class_results[0] }}</td>
+            <td>{{ multi_class_results[1] }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="mt-4">
+    <h3>Scarica i Risultati</h3>
+    <a href="{{ url_for('download_file', filename='binary_results.csv') }}" class="btn btn-primary">Scarica Risultati Binari</a>
+    <a href="{{ url_for('download_file', filename='multi_class_results.csv') }}" class="btn btn-primary">Scarica Risultati Multi-Classe</a>
+</div>
+{% endblock %}
