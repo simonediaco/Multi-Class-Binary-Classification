@@ -7,6 +7,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import to_categorical
 import numpy as np
 
+
 class CustomKerasMultiClassClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, input_dim, num_classes, epochs=150, batch_size=10):
         self.input_dim = input_dim
@@ -24,8 +25,8 @@ class CustomKerasMultiClassClassifier(BaseEstimator, ClassifierMixin):
         return model
 
     def fit(self, X, y):
-        self.model = self.build_model()
         y_encoded = to_categorical(y, num_classes=self.num_classes)
+        self.model = self.build_model()
         self.model.fit(X, y_encoded, epochs=self.epochs, batch_size=self.batch_size, verbose=0)
         return self
 
@@ -34,6 +35,7 @@ class CustomKerasMultiClassClassifier(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         return self.model.predict(X)
+
 
 def evaluate_multi_class_model(X, y, num_classes):
     label_encoder = LabelEncoder()

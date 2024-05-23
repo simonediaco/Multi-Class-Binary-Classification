@@ -1,12 +1,14 @@
-import arff
+import pandas as pd
+from scipy.io import arff
 
-def save_as_arff(dataframes, filenames):
-    for df, filename in zip(dataframes, filenames):
+
+def save_as_arff(datasets, file_paths):
+    for dataset, file_path in zip(datasets, file_paths):
         arff_data = {
             'description': '',
-            'relation': 'relation_name',
-            'attributes': [(col, 'REAL') for col in df.columns[:-1]] + [('class', ['0', '1'])],
-            'data': df.values
+            'relation': 'binary_classification',
+            'attributes': [(col, 'REAL') for col in dataset.columns[:-1]] + [('class', 'INTEGER')],
+            'data': dataset.values,
         }
-        with open(filename, 'w') as f:
+        with open(file_path, 'w') as f:
             arff.dump(arff_data, f)
