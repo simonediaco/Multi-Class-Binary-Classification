@@ -19,12 +19,6 @@ def create_binary_datasets(datasets):
     return binary_datasets
 
 
-def preprocess_datasets(datasets):
-    for dataset in datasets:
-        dataset.fillna(0, inplace=True)
-    return datasets
-
-
 def load_datasets(folder):
     arff_files = [f'{folder}/{file}' for file in os.listdir(folder) if file.endswith('.arff')]
     datasets = []
@@ -34,3 +28,20 @@ def load_datasets(folder):
         df = df.apply(pd.to_numeric, errors='ignore')
         datasets.append(df)
     return datasets
+
+
+def combine_datasets(datasets):
+    combined_dataset = pd.concat(datasets, axis=0)
+    return combined_dataset
+
+
+def preprocess_datasets(datasets):
+    for dataset in datasets:
+        dataset.fillna(0, inplace=True)
+    return datasets
+
+
+def preprocess_multi_class_dataset(dataset):
+    dataset = dataset.apply(pd.to_numeric, errors='coerce')
+    dataset = dataset.dropna()
+    return dataset

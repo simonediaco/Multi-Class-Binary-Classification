@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 import pandas as pd
 from werkzeug.utils import secure_filename
-from utils.data_processing import create_binary_datasets, load_datasets, preprocess_datasets
-from utils.model_evaluation import evaluate_models
+from utils.data_processing import create_binary_datasets, load_datasets, preprocess_datasets, combine_datasets, \
+    preprocess_multi_class_dataset
+from utils.model_evaluation import evaluate_models, evaluate_multi_class_model
 from utils.csv_to_arff import csv_to_arff
 
 app = Flask(__name__)
@@ -53,12 +54,20 @@ def results():
     binary_datasets = create_binary_datasets(datasets)
     binary_results = evaluate_models(binary_datasets)
 
+    combined_dataset = combine_datasets(datasets)
+    combined_dataset = preprocess_multi_class_dataset(combined_dataset)
+    multi_class_results = evaluate_multi_class_model(combined_dataset)
+
     ensure_directory_exists('data/results')
 
     results_df = pd.DataFrame(binary_results, columns=['Precision', 'Recall'])
     results_df.to_csv('data/results/binary_results.csv', index=False)
 
-    return render_template('results.html', binary_results=binary_results)
+    multi_class_results_df = pd.DataFrame([multi_class_results], columns=['Precision', 'Recall'])
+    multi_class_results_df.to_csv('data/results/multi_class_results.csv', index=False)
+
+    return render_template('results.html', binary_results=binary_results, multi_class_results=multi_class_results)
+
 
 @app.route('/data/results/<path:filename>')
 def download_file(filename):
