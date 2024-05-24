@@ -1,59 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Classificazione Multi-Classe - Home{% endblock %}
+{% block title %}Home - Multi-Class Binary Classification{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="text-center">Classificazione Multi-Classe</h1>
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <h3>Step 1: Caricamento dei Dati</h3>
-            <form id="upload-form" class="mt-3">
-                <div class="form-group">
-                    <label for="file-input">Carica i file CSV:</label>
-                    <input type="file" id="file-input" name="files" multiple class="form-control-file" accept=".csv">
-                </div>
-                <button type="button" class="btn btn-secondary" onclick="uploadFiles()">Converti CSV in ARFF</button>
-            </form>
-        </div>
-        <div class="col-md-6">
-            <h3>Descrizione</h3>
-            <p>Carica i tuoi file CSV e clicca su "Converti CSV in ARFF" per convertirli. Una volta completata la conversione, lo step 2 sarà abilitato.</p>
-        </div>
-    </div>
-    <div class="row mt-4" id="step2" style="display: {% if files_present %}block{% else %}none{% endif %};">
-        <div class="col-md-12">
-            <h3>Step 2: Esecuzione della Classificazione</h3>
-            <form action="/results" method="post" class="text-center mt-3">
-                <button type="submit" class="btn btn-primary">Esegui Classificazione</button>
-            </form>
-        </div>
-    </div>
+<div class="jumbotron">
+    <h1 class="display-4">Multi-Class Binary Classification</h1>
+    <p class="lead">This application allows you to upload CSV files containing datasets for different classes, convert them into ARFF format, and evaluate binary classification models.</p>
+    <hr class="my-4">
+    <p>Start by uploading your CSV files and then proceed to convert them and evaluate the models.</p>
 </div>
-
-<script>
-function uploadFiles() {
-    const input = document.getElementById('file-input');
-    const formData = new FormData();
-
-    for (const file of input.files) {
-        formData.append('files', file);
-    }
-
-    fetch('/convert', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert('Conversione completata!');
-            document.getElementById('step2').style.display = 'block';
-        } else {
-            alert('Errore nella conversione: ' + data.error);
-        }
-    })
-    .catch(error => console.error('Errore:', error));
-}
-</script>
+<form id="upload-form" action="/convert" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="files">Upload CSV Files:</label>
+        <input type="file" class="form-control-file" id="files" name="files" multiple>
+    </div>
+    <button type="submit" class="btn btn-primary">Convert to ARFF</button>
+</form>
+{% if message %}
+<div class="alert alert-{{ message_type }} mt-3" role="alert">
+    {{ message }}
+</div>
+{% endif %}
+<div id="step2" class="mt-5" style="display: {{ 'block' if files_present else 'none' }};">
+    <h2>Step 2: Evaluate Models</h2>
+    <form action="/results" method="post">
+        <button type="submit" class="btn btn-success">Evaluate Models</button>
+    </form>
+</div>
 {% endblock %}
