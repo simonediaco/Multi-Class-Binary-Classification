@@ -9,6 +9,7 @@
     <hr class="my-4">
     <p>The table below shows the precision and recall scores for each dataset.</p>
 </div>
+{% if binary_results %}
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -18,9 +19,9 @@
         </tr>
     </thead>
     <tbody>
-        {% for i, result in enumerate(binary_results) %}
+        {% for result in binary_results %}
         <tr>
-            <td>{{ i + 1 }}</td>
+            <td>{{ loop.index }}</td>
             <td>{{ result[0] }}</td>
             <td>{{ result[1] }}</td>
         </tr>
@@ -28,4 +29,7 @@
     </tbody>
 </table>
 <a href="/data/results/binary_results.csv" class="btn btn-primary">Download Results</a>
+{% else %}
+<p>No results available.</p>
+{% endif %}
 {% endblock %}

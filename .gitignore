@@ -9,6 +9,7 @@ __pycache__/*
 
 logs
 logs/*
+*.log
 
 #data/converted/*
 #data/results/*
